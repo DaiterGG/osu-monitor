@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>osu!monitor</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/tooltip.css">
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+
+<body>
+  <div class="bg-triangles"></div>
+  <div class="sub">
+    <div class="bg-color"></div>
+    <h1 class="logo">osu!monitor
+      <!-- <div class="legal">This is an unofficial non-profit open source website, and it is not affiliated with "ppy" or the official osu! branding.
+    If you have any questions or comments, feel free to contact me on Discord: _daiter_
+    Github repository: https://github.com/DaiterGG/osu-monitor
+    </div> -->
+    </h1>
+    <div class="filters">
+      <div class="button-container bmode">
+        <button class="switch-button stdlogo" onclick="changeMode(0)"></button>
+        <button class="switch-button tailogo" onclick="changeMode(1)"></button>
+        <button class="switch-button ctblogo" onclick="changeMode(2)"></button>
+        <button class="switch-button manlogo" onclick="changeMode(3)"></button>
+      </div>
+      <div class="button-container bgame">
+        <button class="switch-button" onclick="changeGame(true)">Lazer</button>
+        <button class="switch-button" onclick="changeGame(false)">Stable</button>
+      </div>
+    </div>
+    <!-- Container for plates -->
+    <div class="bar"></div>
+    <div class="container">
+      <span class="norooms">
+        <h1>No one here...</h1>
+        <p>if you disagree, report to me. Discord:_daiter_</p>
+      </span>
+      <h2 class="loading">Loading...</h2>
+      <h1 class="stablewarning" data-content="Not available in current osu API :("></h1>
+      <div class="plate" id="example-plate">
+        <div class="plateleft">
+          <div class="accesstype">
+            <p>Open</p>
+          </div>
+          <h2>Example title of the room </h2>
+          <div class="map tooltip">
+            <span class="tooltiptext">Tooltip text</span>
+            <div class="mapprefix">Currently playing</div>
+            <a class="mapcontent" target="_blank" rel="noopener noreferrer">Cool map with a cool difficulty</a>
+          </div>
+          <div class="tags">
+            <div class="type">
+              <span>Head-to-head</span>
+            </div>
+            <div class="selectmode">
+              <span>All players (round robin)</span>
+            </div>
+            <div class="btmcount">
+              <span>1 beatmap</span>
+            </div>
+            <div class="stars">
+              <div class="min">
+                <div>★ 0.00</div>
+              </div>
+              <div class="max">
+                <div>★ 9.99</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="plateright">
+          <div class="tooltip">Hover over me
+            <span class="tooltiptext">Tooltip text</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="scripts/main.js"></script>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,418 @@
+@font-face {
+  font-family: 'TorusRegular';
+  src: url('../fonts/TorusRegular.734ed3ae.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Extra';
+  src: url('../fonts/extra.53b8246c.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TorusThin';
+  src: url('../fonts/TorusThin.daca2c7e.otf') format('opentype');
+  font-weight: thin;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TorusBold';
+  src: url('../fonts/Torus-Bold.c233ce17.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+body {
+  font-family: TorusThin, sans-serif;
+  background-color: #1c1719;
+  color: #fff;
+  text-align: center;
+  height: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding-right: 12px;
+  /* Adjust for scrollbar width */
+
+}
+
+.sub {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  /* Enable vertical scrollbar */
+  overflow-x: hidden;
+  /* Hide horizontal scrollbar */
+  background-color: transparent;
+  /* Transparent background */
+  padding: 50px;
+}
+
+/* fro chrome only */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  /* Track */
+  .sub::-webkit-scrollbar {
+    width: 12px;
+    background: transparent;
+  }
+
+  .sub::-webkit-scrollbar-thumb {
+    background-color: #312b36dc;
+    /* Color of the scrollbar thumb with some transparency */
+    border-radius: 10px;
+    /* Rounded corners for the thumb */
+  }
+}
+
+.bg-triangles {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../img/nav2-background-hue0.png');
+  position: absolute;
+  filter: hue-rotate(285deg) saturate(.4);
+  background-repeat: repeat-x;
+  z-index: -1;
+}
+
+.bg-color {
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-attachment: scroll;
+  background-image: linear-gradient(120deg, #502e65, #ffffff00), linear-gradient(185deg, #502e65, #ffffff00), linear-gradient(100deg, #6b91e2, #ffffff00), linear-gradient(340deg, #ce62a1, #ffffff00);
+  z-index: -2;
+}
+
+
+.logo {
+  font-family: TorusRegular, sans-serif;
+  color: #fff;
+  text-align: left;
+  margin-left: 0;
+}
+
+/* Settings */
+.filters {
+  display: flex;
+  flex-direction: row;
+  height: 30px;
+  width: auto;
+}
+
+.button-container {
+  display: inline-flex;
+  flex-direction: row;
+  height: auto;
+
+  margin-right: 20px;
+}
+
+.bgame button {
+  font-family: TorusRegular, sans-serif;
+  padding-left: 7px;
+  padding-right: 7px;
+  padding-bottom: 20px;
+}
+
+.switch-button {
+  --modesbg-color: #2a2228;
+  font-family: Extra;
+  height: 30px;
+  margin-right: -10px;
+  font-size: 20px;
+  padding-inline: 10px;
+  cursor: pointer;
+  border: none;
+  background-color: var(--modesbg-color);
+  color: white;
+  transition: background-color 0.3s;
+}
+
+.switch-button:first-child {
+  border-radius: 15px 0 0 15px;
+  padding-left: 15px;
+}
+
+.switch-button:last-child {
+  padding-right: 15px;
+  border-radius: 0 15px 15px 0;
+}
+
+.stdlogo::before {
+  content: "\e800";
+}
+
+.tailogo::before {
+  content: "\e803";
+}
+
+.ctblogo::before {
+  content: "\e801";
+}
+
+.manlogo::before {
+  content: "\e802";
+}
+
+.switch-button:hover {
+  background-color: #da3dad;
+}
+
+.switch-button:focus {
+  outline: none;
+}
+
+.bar {
+  background-color: #2a2228;
+  display: flex;
+  width: auto;
+  height: 5px;
+  border-radius: 10px;
+  margin-bottom: 7px;
+  margin-top: 11px;
+}
+
+/* Maps */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.norooms {
+  display: none;
+  flex-direction: column;
+}
+
+.loading {
+  display: none;
+}
+
+.stablewarning {
+  display: none;
+}
+.plate {
+  background-color: #2a2228;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+  padding-left: 18px;
+  min-height: 87px;
+  width: 100%;
+  display: flex;
+  box-sizing: border-box;
+  border-radius: 9px;
+  flex-direction: row;
+}
+
+#example-plate {
+  display: none;
+}
+
+.plateleft {
+  flex-direction: column;
+  height: auto;
+  width: auto;
+  display: flex;
+}
+
+.plateright {
+  margin-left: auto;
+  height: auto;
+  width: 200px;
+}
+
+.accesstype {
+  background-color: #b3d944;
+  color: #000;
+  border-radius: 10px;
+  width: 69px;
+  height: 12px;
+  font-size: 9px;
+  font-family: TorusBold, sans-serif;
+  margin-bottom: 6px;
+}
+
+.accesstype p {
+  margin: 0;
+  height: inherit;
+  line-height: 12px;
+}
+
+.plate h2 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 19px;
+  min-height: 16px;
+  line-height: 16px;
+  text-align: left;
+  color: #fff;
+}
+
+.map {
+  display: flex;
+  margin-right: auto;
+  font-size: 11px;
+  gap: 7px;
+  margin-top: -3px;
+  min-height: 11px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.mapprefix {
+  margin: 0;
+  text-align: left;
+  color: #a8f061;
+}
+
+.mapcontent {
+  display: flex;
+  min-height: 11px;
+  margin: 0;
+  text-align: left;
+  color: #cb9bbb;
+  text-decoration: none;
+}
+
+.mapcontent:hover {
+  text-decoration: underline;
+}
+
+.tags {
+  height: auto;
+  display: flex;
+  font-size: 9px;
+  gap: 7px;
+  font-family: TorusThin, sans-serif;
+  flex-wrap: wrap;
+}
+
+.tags>div {
+  height: 12px;
+}
+
+.selectmode {
+  background-color: #151114;
+  border-radius: 10px;
+  height: inherit;
+  min-width: 70px;
+  margin: 0;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+.selectmode span {
+  line-height: 12px;
+  height: inherit;
+}
+
+.type {
+  background-color: #151114;
+  height: inherit;
+  margin: 0;
+  min-width: 70px;
+  border-radius: 10px;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+.type span {
+  line-height: 12px;
+  height: inherit;
+}
+
+.btmcount {
+  background-color: #151114;
+  min-width: 70px;
+  height: inherit;
+  margin: 0;
+  border-radius: 10px;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+.btmcount span {
+  height: inherit;
+  line-height: 12px;
+}
+
+.stars {
+  margin: 0;
+  position: relative;
+  width: 75px;
+  height: 11px;
+  align-self: center;
+}
+
+.stars>* {
+  position: absolute;
+  display: inline-block;
+  height: 10px;
+  font-size: 9px;
+  font-family: TorusBold, sans-serif;
+  line-height: 10px;
+}
+
+.min {
+  color: #2a2228;
+  text-align: left;
+  top: 0;
+  width: 57px;
+  left: 0;
+  border-radius: 10px 0 0 10px;
+  background-color: #a9f068;
+  margin-top: 1px;
+}
+
+.min>div {
+  margin-left: 3px;
+}
+
+.max {
+  --max-star-color: #ce8e3c;
+  color: #2a2228;
+  bottom: 0;
+  width: 37px;
+  right: 0;
+  border-radius: 0 10px 10px 0;
+  background-color: var(--max-star-color);
+}
+
+.max>div {
+  margin-right: 6px;
+}
+
+.max::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 10px 8px 0px 0px;
+  border-color: transparent var(--max-star-color) transparent transparent;
+}
+
+.tags p {
+  margin: 0;
+}
+
+
+.button-container {
+  display: flex;
+  gap: 10px;
+}
