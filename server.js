@@ -156,6 +156,7 @@ app.use(async (req, res, next) => {
   refreshTokenIfNeeded();
   next();
 });
+
 async function refreshTokenIfNeeded() {
   if (tokenExpirationTime == undefined || Date.now() + 60000 < tokenExpirationTime) {
     return;
@@ -202,9 +203,20 @@ async function refreshTokenIfNeeded() {
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
-console.log(__dirname);
+//app.use('/', express.static(path.join(__dirname + '/public')));
 
-app.use('/', express.static(path.join(__dirname + '/public')));
+
+import cors from 'cors';
+
+const corsOptions = {
+  origin: ['http://127.0.0.1:5500','https://osumonitor.great-site.net'],
+  allowedHeaders: ["ngrok-skip-browser-warning", "Content-Type", "Authorization", "Access-Control-Allow-Methods", "Access-Control-Request-Headers"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 
 //
 //Populate web page

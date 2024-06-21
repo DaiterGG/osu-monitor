@@ -76,10 +76,11 @@ function updateButtons() {
 
 // Function to create and populate plates from the rooms array
 function getRooms() {
-  fetch('https://localhost:3000/rooms', {
+  fetch('https://bd47-46-63-222-58.ngrok-free.app/rooms', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
       },
     }).then(data => (data.json()))
       .then(res => {
