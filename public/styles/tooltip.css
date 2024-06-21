@@ -1,32 +1,66 @@
+@font-face {
+  font-family: 'TorusRegular';
+  src: url('../fonts/TorusRegular.734ed3ae.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Tooltip container */
 .tooltip {
   position: relative;
 }
-
 /* Tooltip text */
 .tooltip .tooltiptext {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  font-family: TorusRegular, sans-serif;
   visibility: hidden;
-  width: 120px;
+  min-width: 300px;
   background-color: #383538;
   color: #fff;
   text-align: center;
-  padding: 5px 0;
+  padding: 5px 5px;
   border-radius: 6px;
+  white-space: pre;
 
   /* Position the tooltip text */
   position: absolute;
   z-index: 1;
-  bottom: 125%;
+  bottom: calc(100%); /* Default position */
   left: 50%;
-  margin-left: -60px;
+  transform: translateX(-50%); /* Center the tooltip horizontally */
 
   /* Fade in tooltip */
   opacity: 0;
   transition: opacity 0.3s;
 }
 
-/* Show the tooltip text when you mouse over the tooltip container */
+
+/* Adjust tooltip position when near top of viewport */
+.tooltip[data-direction="top"] .tooltiptext {
+  bottom: auto;
+  top: calc(100%);
+}
+
+.tooltip .tooltiptext a {
+  color: #fff;
+}
+
+/* Show the tooltip text when parent .tooltip is hovered */
 .tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Keep tooltip visible when hovering over it */
+.tooltip .tooltiptext:hover {
+  visibility: hidden;
+  opacity: 1;
+}
+
+/* Keep tooltip visible when hovering over it */
+.legal .tooltiptext:hover {
   visibility: visible;
   opacity: 1;
 }

@@ -2,24 +2,25 @@
 let filterMode = 0;
 let rooms;
 let isLazer;
-
+let intervalID;
 document.addEventListener('DOMContentLoaded', () => {
   isLazer = true;
   updateButtons();
+  tooltipHandle();
   initCalls();
 });
 function initCalls() {
   if (isLazer) {
     removePlates();
     displayStatus('.loading');
-    clearInterval();
+    clearInterval(intervalID);
     getRooms();
-    setInterval(getRooms, 5000);
+    intervalID = setInterval(getRooms, 5000);
   } else {
     removePlates();
     displayStatus('.stablewarning');
-    clearInterval();
-    
+    clearInterval(intervalID);
+
     //Not available in current API
     // getMatches();
     // setInterval(getMatches, 5000);
@@ -37,7 +38,7 @@ function displayStatus(status) {
   try {
     document.querySelector(status).style.display = 'flex';
   }
-  catch{console.log(status + ' does not exist');}
+  catch { }
 }
 
 /**
@@ -76,20 +77,18 @@ function updateButtons() {
 // Function to create and populate plates from the rooms array
 function getRooms() {
   fetch('https://localhost:3000/rooms', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data == undefined) {
-        throw new Error('\'rooms\' was not defined correctly');
-      }
-      rooms = data;
-      populatePlates();
-    })
-    .catch(error => console.error('Error fetching data:', error));
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(data => (data.json()))
+      .then(res => {
+        rooms = res; // Assuming 'data' is the variable received from response
+        populatePlates(); // Call your function to update UI with 'rooms' data
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
 }
 function getMatches() {
   //Not available in current API
@@ -118,28 +117,45 @@ function populatePlates() {
   const examplePlate = document.getElementById('example-plate');
   examplePlate.style.display = 'none';
   removePlates();
-  console.log(rooms);
-  
+
   let roomsAdded = 0;
   rooms.forEach(room => {
     let mindif = 999;
     let maxdif = 0;
-    let currentMap;
     let modes = [0, 0, 0, 0];
-    room['playlist'].forEach(beatmap => {
+    let expCounter = 0;
+    let currentBeatmapFound = false;
+    let beatmapQueue = [];
+    let allDif = [];
+    const playlist = room['playlist'];
+    for (let i = playlist.length - 1; i >= 0; i--) {
+      if (playlist[i]['expired']) {
+        if (!currentBeatmapFound) {
+          currentBeatmapFound = true;
+        }
+        expCounter++;
+        if (expCounter > 5) break;
+      }
+      //queue inicialization
+      if (!currentBeatmapFound) {
+        beatmapQueue.push(playlist[i]);
+      }
       modes.forEach((mode, index) => {
-        if (beatmap['ruleset_id'] == index) {
+        if (playlist[i]['ruleset_id'] == index) {
           modes[index] = 1;
         }
       });
-      const sr = beatmap['beatmap']['difficulty_rating'];
+      const sr = playlist[i]['beatmap']['difficulty_rating'];
       if (sr < mindif) {
         mindif = sr;
       }
       if (sr > maxdif) {
         maxdif = sr;
       }
-    });
+      allDif.push(sr);
+    }
+
+    //if queue is empty add first expired beatmap 
     let roomMode = -1;
     if (modes[0] + modes[1] + modes[2] + modes[3] > 1) {
       modes.forEach((mode, index) => {
@@ -155,18 +171,56 @@ function populatePlates() {
     if (filterMode == roomMode || roomMode == 'mixed') {
       //create a web plate
       const newPlate = examplePlate.cloneNode(true);
-      //newPlate.syle.display = 'flex';
       newPlate.id = 'room';
+      const plist = newPlate.querySelector('.participantslist');
+      const host = room['host'];
+      let players = room['recent_participants'];
+      players.forEach(pl => {
+        if (host['id'] != pl['id']) {
+          const img = newPlate.querySelector('.authorimg').cloneNode();
+          img.style.backgroundImage = `url('${pl['avatar_url']}')`;
+          plist.appendChild(img);
+        }
+      });
+      newPlate.querySelector('.participantslist .count').textContent = '+ ' + (players.length - 1);
+      newPlate.querySelector('.author .authorimg').style.backgroundImage = `url('${host['avatar_url']}')`;
+      newPlate.querySelector('.authorname').textContent = host['username'];
+      let roomName = room['name'];
+      const roomTooltip = newPlate.querySelector('.roomname .tooltiptext');
 
-      newPlate.querySelector('h2').textContent = room['name'];
-      const currbeatmap = room['playlist'][0]['beatmap'];
-      const currentLink = 'https://osu.ppy.sh/beatmapsets/' + currbeatmap['beatmapset_id'] + '#' + currbeatmap['mode'] + '/' + currbeatmap['id'];
-      currentMap = currbeatmap['beatmapset']['title'] + ' // ' + currbeatmap['version'];
-      if (currentMap.length > 50) {
-        currentMap = currentMap.substring(0, 50) + '...';
-        newPlate.querySelector('.map').querySelector('.tooltiptext').textContent = room['name'];
+      if (roomName.length > 50) {
+        roomTooltip.textContent = roomName;
+        roomName = roomName.substring(0, 50) + '...';
       } else {
-        newPlate.querySelector('.map').querySelector('.tooltiptext').remove();
+        roomTooltip.remove();
+      }
+      newPlate.querySelector('.roomname h2').textContent = roomName;
+
+      queue = beatmapQueue.length;
+
+      //"1 beatmap" is default text
+      if (queue != 1) newPlate.querySelector('.btmcount .count').textContent = queue + ' beatmaps';
+      //if no maps in queue, add last expired beatmap
+      if (queue == 0) beatmapQueue.push(playlist[playlist.length - 1]);
+      if (beatmapQueue.length > 1) {
+        let str = '';
+        beatmapQueue.forEach((map) => {
+          str += map['beatmap']['beatmapset']['title'] + ' // ' + map['beatmap']['version'] + '<br>';
+        });
+        newPlate.querySelector('.btmcount .tooltiptext').innerHTML = str;
+      }
+      else {
+        newPlate.querySelector('.btmcount .tooltiptext').remove();
+      }
+      const currbeatmap = beatmapQueue[beatmapQueue.length - 1];
+      const currentLink = 'https://osu.ppy.sh/beatmapsets/' + currbeatmap['beatmap']['beatmapset_id'] + '#' + currbeatmap['beatmap']['mode'] + '/' + currbeatmap['id'];
+      let currentMap = currbeatmap['beatmap']['beatmapset']['title'] + ' // ' + currbeatmap['beatmap']['version'];
+      newPlate.style.backgroundImage = `url(${currbeatmap['beatmap']['beatmapset']['covers']['slimcover']})`;
+      if (currentMap.length > 50) {
+        newPlate.querySelector('.map .tooltiptext').textContent = currentMap;
+        currentMap = currentMap.substring(0, 50) + '...';
+      } else {
+        newPlate.querySelector('.map .tooltiptext').remove();
       }
       newPlate.querySelector('.mapcontent').textContent = currentMap;
       newPlate.querySelector('.mapcontent').href = currentLink;
@@ -176,21 +230,42 @@ function populatePlates() {
       if (queueMode == 'host_only') queueMode = 'Host only';
 
       newPlate.querySelector('.selectmode').textContent = queueMode;
-      queue = room['playlist'].length;
-      if (queue > 1) newPlate.querySelector('.btmcount').textContent = queue + ' beatmaps';
+
       const _min = newPlate.querySelector('.min');
       const _max = newPlate.querySelector('.max');
-      if (mindif < 100) mindif = mindif.toFixed(2).substring(0, 4);
-      else mindif = mindif.toFixed(0).substring(0, 3);
-      if (maxdif < 100) maxdif = maxdif.toFixed(2).substring(0, 4);
-      else maxdif = maxdif.toFixed(0).substring(0, 3);
-      _min.querySelector('div').textContent = '★ ' + mindif;
-      _max.querySelector('div').textContent = '★ ' + maxdif;
+      if (allDif.length == 1) {
+        const _one = newPlate.querySelector('.onestar');
+        _one.style.visibility = 'visible';
+        if (allDif[0] < 100) allDif[0] = allDif[0].toFixed(2).substring(0, 4);
+        else allDif[0] = allDif[0].toFixed(0).substring(0, 3);
+        _one.querySelector('div').textContent = '★ ' + allDif[0];
+        if (allDif[0] >= 6.5) _one.querySelector('div').style.color = '#ffd966';
+        _one.querySelector('div').style.backgroundColor = difficultyColourSpectrum(allDif[0]);
+        _min.style.visibility = 'hidden';
+        _max.style.visibility = 'hidden';
+      } else {
+        if (mindif < 100) mindif = mindif.toFixed(2).substring(0, 4);
+        else mindif = mindif.toFixed(0).substring(0, 3);
+        if (maxdif < 100) maxdif = maxdif.toFixed(2).substring(0, 4);
+        else maxdif = maxdif.toFixed(0).substring(0, 3);
+        _min.querySelector('div').textContent = '★ ' + mindif;
+        _max.querySelector('div').textContent = '★ ' + maxdif;
 
-      if (mindif >= 6.5) _min.style.color = '#ffd966';
-      if (maxdif >= 6.5) _max.style.color = '#ffd966';
-      _min.style.backgroundColor = difficultyColourSpectrum(mindif);
-      _max.style.setProperty('--max-star-color', difficultyColourSpectrum(maxdif));
+        if (mindif >= 6.5) _min.style.color = '#ffd966';
+        if (maxdif >= 6.5) _max.style.color = '#ffd966';
+        _min.style.backgroundColor = difficultyColourSpectrum(mindif);
+        _max.style.setProperty('--max-star-color', difficultyColourSpectrum(maxdif));
+        
+      }
+      if (allDif.length > 2) {
+        let allDifstr = '';
+        allDif.forEach((element) => {
+          allDifstr = allDifstr + element + ' ';
+        });
+        newPlate.querySelector('.stars .tooltiptext').textContent = allDifstr;
+      } else {
+        newPlate.querySelector('.stars .tooltiptext').remove();
+      }
       newPlate.style.display = 'flex';
       displayStatus('nothing');
       roomsAdded++;
@@ -213,3 +288,27 @@ const difficultyColourSpectrum = d3.scaleLinear()
   .clamp(true)
   .range(['#4290FB', '#4FC0FF', '#4FFFD5', '#7CFF4F', '#F6F05C', '#FF8068', '#FF4E6F', '#C645B8', '#6563DE', '#18158E', '#000000'])
   .interpolate(d3.interpolateRgb.gamma(2.2));
+
+
+
+function tooltipHandle() {
+  var tooltips = document.querySelectorAll('.tooltip');
+
+  tooltips.forEach(function (tooltip) {
+    tooltip.addEventListener('mouseover', function () {
+      var tooltipRect = tooltip.getBoundingClientRect();
+      var tooltipText = tooltip.querySelector('.tooltiptext');
+
+      // Check if tooltip is near the top of the viewport
+      if (tooltipRect.top < tooltipText.offsetHeight + 10) {
+        tooltip.setAttribute('data-direction', 'top');
+      } else {
+        tooltip.removeAttribute('data-direction');
+      }
+    });
+
+    tooltip.addEventListener('mouseleave', function () {
+      tooltip.removeAttribute('data-direction');
+    });
+  });
+}

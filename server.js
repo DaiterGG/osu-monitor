@@ -17,8 +17,9 @@ let clientSecret;
 let accessToken;
 let refreshToken;
 let tokenExpirationTime;
-let rooms;
-let matches;
+let rooms = [];
+let roomsAll;
+//let matches;
 // Middleware to serve static files
 //app.use(express.static(path.join(__dirname, 'public')));
 
@@ -32,12 +33,24 @@ https.createServer(options, app).listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
   try {
     await initializeVar();
-    initializeAuth();
+    await updateRooms();
+    if (rooms == undefined || rooms.length == 0) {
+      console.log(`tokens are not set`);
+      console.log(`authenticate at ${siteLink}/${authLink}`);
+      initializeAuth();
+    }
+    initCalls();
   } catch (error) {
-    console.error('Error in initial data fetch:', error.message);
+    console.error('Initializiton server rror:', error.message);
   }
 });
 
+function writeData(varData , keyName) {
+  jsonData[keyName] = varData.toString();
+  fs.writeFileSync('links.json',  JSON.stringify(jsonData), 'utf8', (err) => {
+    console.log('Error writing to a file:', err);
+  });
+}
 async function initializeVar() {
   return new Promise((resolve, reject) => {
     fs.readFile('links.json', 'utf8', (err, data) => {
@@ -51,12 +64,15 @@ async function initializeVar() {
         jsonData = JSON.parse(data);
         siteLink = `${jsonData['siteLink']}${PORT}`;
         authLink = jsonData['authLink'];
-        console.log(`authenticate at ${siteLink}/${authLink}`);
 
         clientId = jsonData['clientId'];
         console.log('clientId:', clientId);
 
         clientSecret = jsonData['clientSecret'];
+
+        accessToken = jsonData['accessToken'];
+        refreshToken = jsonData['refreshToken'];
+
         console.log('clientSecret:', clientSecret);
         resolve();
       } catch (parseError) {
@@ -115,6 +131,9 @@ function initializeAuth() {
 
       accessToken = tokenData.access_token;
       refreshToken = tokenData.refresh_token;
+      writeData(accessToken, 'accessToken');
+      writeData(refreshToken, 'refreshToken');
+
       tokenExpirationTime = Date.now() + (tokenData.expires_in * 1000);
       console.log('Access Token:', accessToken);
       console.log('Refresh Token:', refreshToken);
@@ -124,6 +143,7 @@ function initializeAuth() {
       <h3>Token granted. Token expires at: ${new Date(tokenExpirationTime).toLocaleString()}</h3>
     `);
 
+      initCalls();
       await updateRooms();
       //await updateMatches();
     } catch (error) {
@@ -133,7 +153,7 @@ function initializeAuth() {
   });
 }
 app.use(async (req, res, next) => {
-  await refreshTokenIfNeeded();
+  refreshTokenIfNeeded();
   next();
 });
 async function refreshTokenIfNeeded() {
@@ -162,6 +182,11 @@ async function refreshTokenIfNeeded() {
 
     accessToken = tokenResponse.data.access_token;
     refreshToken = tokenResponse.data.refresh_token;
+
+    writeData(accessToken, 'accessToken');
+    writeData(refreshToken, 'refreshToken');
+
+
     tokenExpirationTime = Date.now() + (tokenResponse.data.expires_in * 1000);
 
     console.log('Access Token refreshed:', accessToken);
@@ -212,8 +237,8 @@ async function updateRooms() {
         method: 'GET',
         headers: headers
       });
-      rooms = await response.json();
-
+      roomsAll = await response.json();
+      filterRooms();
       console.log('Rooms data fetched successfully');
     } catch (error) {
       console.error('Error fetching rooms:', error.message);
@@ -260,11 +285,15 @@ async function updateRooms() {
 //     }
 //   }
 // }
-app.get('/rooms', async (req, res) => {
-  await updateRooms();
-  if (rooms == undefined) console.error('var \'rooms\' was not defined correctly');
-  else res.send(rooms);
-});
+function initCalls() {
+
+  app.get('/rooms', async (req, res) => {
+    //console.log('Rooms requested');
+    updateRooms();
+    if (rooms == undefined || rooms.length == 0) console.error('var \'rooms\' was not defined correctly');
+    else res.send(rooms);
+  });
+}
 
 // app.get('/matches', async (req, res) => {
 //   await updateMatches();
@@ -273,3 +302,10 @@ app.get('/rooms', async (req, res) => {
 // });
 
 
+function filterRooms() {
+  rooms = [];
+  roomsAll.forEach((room) => {
+    if (!room['has_password'])
+      rooms.push(room);
+  });
+}

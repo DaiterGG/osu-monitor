@@ -7,18 +7,24 @@
   <title>osu!monitor</title>
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/tooltip.css">
-  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="https://d3js.org/d3.v6.min.js"></script> <!-- for osu star colour calc -->
 </head>
 
 <body>
   <div class="bg-triangles"></div>
   <div class="sub">
     <div class="bg-color"></div>
-    <h1 class="logo">osu!monitor
-      <!-- <div class="legal">This is an unofficial non-profit open source website, and it is not affiliated with "ppy" or the official osu! branding.
-    If you have any questions or comments, feel free to contact me on Discord: _daiter_
-    Github repository: https://github.com/DaiterGG/osu-monitor
-    </div> -->
+    <div class="logo">
+      <h1>osu!monitor</h1>
+      <div class="info">
+        Feature-rich* osu! multiplayer website
+        <div class="legal tooltip">(!)
+          <div class="tooltiptext">This is an unofficial <br>non-profit open source website,<br>and it is not affiliated with<br>"ppy" or the official osu! branding.<br>If you have any questions or comments, <br>feel free to contact me on Discord: _daiter_<br><a href="https://github.com/DaiterGG/osu-monitor" target="_blank"
+              rel="noopener noreferrer">Github repository</a>
+          </div>
+        </div>
+      </div>
+    </div>
     </h1>
     <div class="filters">
       <div class="button-container bmode">
@@ -40,48 +46,71 @@
         <p>if you disagree, report to me. Discord:_daiter_</p>
       </span>
       <h2 class="loading">Loading...</h2>
-      <h1 class="stablewarning" data-content="Not available in current osu API :("></h1>
+      <h1 class="stablewarning">Not available in current osu API :(</h1>
       <div class="plate" id="example-plate">
-        <div class="plateleft">
-          <div class="accesstype">
-            <p>Open</p>
-          </div>
-          <h2>Example title of the room </h2>
-          <div class="map tooltip">
-            <span class="tooltiptext">Tooltip text</span>
-            <div class="mapprefix">Currently playing</div>
-            <a class="mapcontent" target="_blank" rel="noopener noreferrer">Cool map with a cool difficulty</a>
-          </div>
-          <div class="tags">
-            <div class="type">
-              <span>Head-to-head</span>
+        <div class="platebg">
+          <div class="plateleft">
+            <div class="accesstype">
+              <p>Open</p>
             </div>
-            <div class="selectmode">
-              <span>All players (round robin)</span>
+            <div class="roomname tooltip">
+              <h2>Example title of the room</h2>
+              <span class="tooltiptext">Tooltip text</span>
             </div>
-            <div class="btmcount">
-              <span>1 beatmap</span>
+            <div class="map tooltip">
+              <div class="tooltiptext">Tooltip text</div>
+              <div class="mapprefix">Currently playing</div>
+              <a class="mapcontent" target="_blank" rel="noopener noreferrer">Cool map with a cool difficulty</a>
             </div>
-            <div class="stars">
-              <div class="min">
-                <div>★ 0.00</div>
+            <div class="tags">
+              <div class="type">
+                <span>Head-to-head</span>
               </div>
-              <div class="max">
-                <div>★ 9.99</div>
+              <div class="selectmode">
+                <span>All players (round robin)</span>
+              </div>
+              <div class="btmcount tooltip">
+                <div class="count">1 beatmap</div>
+                <div class="tooltiptext">Tooltip textTooltip text//Tooltip textTooltipTooltip textTooltip text</div>
+              </div>
+              <div class="stars tooltip">
+                <div class="onestar">
+                  <div>★ 0.00</div>
+                </div>
+                <div class="tooltiptext">Tooltip text</div>
+                <div class="min">
+                  <div>★ 0.00</div>
+                </div>
+                <div class="max">
+                  <div>★ 9.99</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="plateright">
-          <div class="tooltip">Hover over me
-            <span class="tooltiptext">Tooltip text</span>
+          <div class="plateright">
+            <div class="peoplebg"></div>
+            <div class="people">
+              <div class="author">
+                <div class="authorimg"></div>
+                <div class="authorinfo">
+                  <span>hosted by </span>
+                  <a class="authorname" target="_blank" rel="noopener noreferrer">author</a>
+                </div>
+              </div>
+              <div class="participants">
+                <div class="participantslist">
+                  <div class="icon"></div>
+                  <div class="count">+ 0</div>
+                </div>
+                <div class="participantsbg"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
-    <script src="scripts/main.js"></script>
   </div>
+  <script src="scripts/main.js"></script>
 </body>
 
 </html>
