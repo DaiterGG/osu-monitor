@@ -81,20 +81,20 @@ function _toggleB(button, on) {
 
 // Function to create and populate plates from the rooms array
 function getRooms() {
-  fetch('https://localhost:3000/rooms', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-    .then(data => (data.json()))
-    .then(res => {
+  fetch('https://bd47-46-63-222-58.ngrok-free.app/rooms', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    }).then(data => (data.json()))
+      .then(res => {
       if (filtersOn) populatePlates(filterRooms(res))
-      else populatePlates(res); // Call your function to update UI with 'rooms' data
-    })
-    .catch(error => {
-      console.error('Error fetching data:', error);
-    });
+        else populatePlates(res);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
 }
 function getMatches() {
   //Not available in current API
