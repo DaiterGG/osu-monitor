@@ -23,13 +23,12 @@
   padding: 5px 5px;
   border-radius: 6px;
   white-space: pre;
-
-  /* Position the tooltip text */
+  text-align: center;
   position: absolute;
   z-index: 1;
-  bottom: calc(100%); /* Default position */
+  bottom: calc(100%); 
   left: 50%;
-  transform: translateX(-50%); /* Center the tooltip horizontally */
+  transform: translateX(-50%);
 
   /* Fade in tooltip */
   opacity: 0;

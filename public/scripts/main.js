@@ -1,12 +1,17 @@
 
 let filterMode = 0;
-let rooms;
 let isLazer;
 let intervalID;
+let filtersOn = false;
+
+let filters = [];
+let filterText = {};
+
 document.addEventListener('DOMContentLoaded', () => {
   isLazer = true;
   updateButtons();
   tooltipHandle();
+  initFilters();
   initCalls();
 });
 function initCalls() {
@@ -34,6 +39,7 @@ function displayStatus(status) {
   document.querySelector('.loading').style.display = 'none';
   document.querySelector('.stablewarning').style.display = 'none';
   document.querySelector('.norooms').style.display = 'none';
+  document.querySelector('.filtersinfo').style.display = 'none';
   //enable status if it exists
   try {
     document.querySelector(status).style.display = 'flex';
@@ -58,37 +64,36 @@ function changeMode(newMode) {
 function updateButtons() {
   const mbuttons = document.querySelector('.bmode').querySelectorAll('button');
   mbuttons.forEach((button, index) => {
-    if (index === filterMode) {
-      button.style.backgroundColor = '#3a2f37'; // Active button color
-    } else {
-      button.style.backgroundColor = '#2a2228'; // Default button color
-    }
+    _toggleB(button, index === filterMode);
   });
   const gbuttons = document.querySelector('.bgame').querySelectorAll('button');
-  if (isLazer) {
-    gbuttons[0].style.backgroundColor = '#3a2f37';
-    gbuttons[1].style.backgroundColor = '#2a2228';
-  } else {
-    gbuttons[0].style.backgroundColor = '#2a2228';
-    gbuttons[1].style.backgroundColor = '#3a2f37';
-  }
+  _toggleB(gbuttons[0], isLazer);
+  _toggleB(gbuttons[1], !isLazer)
+  const fbutton = document.querySelector('.bfilter').querySelector('button');
+  _toggleB(fbutton, filtersOn);
+}
+
+function _toggleB(button, on) {
+  if (on) button.classList.add('active');
+  else button.classList.remove('active');
 }
 
 // Function to create and populate plates from the rooms array
 function getRooms() {
   fetch('https://localhost:3000/rooms', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(data => (data.json()))
-      .then(res => {
-        rooms = res; // Assuming 'data' is the variable received from response
-        populatePlates(); // Call your function to update UI with 'rooms' data
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(data => (data.json()))
+    .then(res => {
+      if (filtersOn) populatePlates(filterRooms(res))
+      else populatePlates(res); // Call your function to update UI with 'rooms' data
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
 }
 function getMatches() {
   //Not available in current API
@@ -111,7 +116,7 @@ function getMatches() {
   //   .catch(error => console.error('Error fetching data:', error));
 }
 
-function populatePlates() {
+function populatePlates(rooms) {
 
   const container = document.querySelector('.container');
   const examplePlate = document.getElementById('example-plate');
@@ -139,13 +144,14 @@ function populatePlates() {
       //queue inicialization
       if (!currentBeatmapFound) {
         beatmapQueue.push(playlist[i]);
+        //modes determine only by future maps
+        modes.forEach((mode, index) => {
+          if (playlist[i]['ruleset_id'] == index) {
+            modes[index] = 1;
+          }
+        });
       }
-      modes.forEach((mode, index) => {
-        if (playlist[i]['ruleset_id'] == index) {
-          modes[index] = 1;
-        }
-      });
-      const sr = playlist[i]['beatmap']['difficulty_rating'];
+      const sr = playlist[i]['beatmapdif'];
       if (sr < mindif) {
         mindif = sr;
       }
@@ -173,18 +179,17 @@ function populatePlates() {
       const newPlate = examplePlate.cloneNode(true);
       newPlate.id = 'room';
       const plist = newPlate.querySelector('.participantslist');
-      const host = room['host'];
       let players = room['recent_participants'];
       players.forEach(pl => {
-        if (host['id'] != pl['id']) {
+        if (room['hostid'] != pl['id']) {
           const img = newPlate.querySelector('.authorimg').cloneNode();
           img.style.backgroundImage = `url('${pl['avatar_url']}')`;
           plist.appendChild(img);
         }
       });
       newPlate.querySelector('.participantslist .count').textContent = '+ ' + (players.length - 1);
-      newPlate.querySelector('.author .authorimg').style.backgroundImage = `url('${host['avatar_url']}')`;
-      newPlate.querySelector('.authorname').textContent = host['username'];
+      newPlate.querySelector('.author .authorimg').style.backgroundImage = `url('${room['hostavatar_url']}')`;
+      newPlate.querySelector('.authorname').textContent = room['hostusername'];
       let roomName = room['name'];
       const roomTooltip = newPlate.querySelector('.roomname .tooltiptext');
 
@@ -205,7 +210,7 @@ function populatePlates() {
       if (beatmapQueue.length > 1) {
         let str = '';
         beatmapQueue.forEach((map) => {
-          str += map['beatmap']['beatmapset']['title'] + ' // ' + map['beatmap']['version'] + '<br>';
+          str += map['beatmapsetname'] + ' // ' + map['beatmapversion'] + '<br>';
         });
         newPlate.querySelector('.btmcount .tooltiptext').innerHTML = str;
       }
@@ -213,9 +218,9 @@ function populatePlates() {
         newPlate.querySelector('.btmcount .tooltiptext').remove();
       }
       const currbeatmap = beatmapQueue[beatmapQueue.length - 1];
-      const currentLink = 'https://osu.ppy.sh/beatmapsets/' + currbeatmap['beatmap']['beatmapset_id'] + '#' + currbeatmap['beatmap']['mode'] + '/' + currbeatmap['id'];
-      let currentMap = currbeatmap['beatmap']['beatmapset']['title'] + ' // ' + currbeatmap['beatmap']['version'];
-      newPlate.style.backgroundImage = `url(${currbeatmap['beatmap']['beatmapset']['covers']['slimcover']})`;
+      const currentLink = 'https://osu.ppy.sh/beatmapsets/' + currbeatmap['beatmapid'] + '#' + currbeatmap['beatmapmode'] + '/' + currbeatmap['id'];
+      let currentMap = currbeatmap['beatmapsetname'] + ' // ' + currbeatmap['beatmapversion'];
+      newPlate.style.backgroundImage = `url(${currbeatmap['slimcover']})`;
       if (currentMap.length > 50) {
         newPlate.querySelector('.map .tooltiptext').textContent = currentMap;
         currentMap = currentMap.substring(0, 50) + '...';
@@ -255,7 +260,7 @@ function populatePlates() {
         if (maxdif >= 6.5) _max.style.color = '#ffd966';
         _min.style.backgroundColor = difficultyColourSpectrum(mindif);
         _max.style.setProperty('--max-star-color', difficultyColourSpectrum(maxdif));
-        
+
       }
       if (allDif.length > 2) {
         let allDifstr = '';
@@ -266,6 +271,7 @@ function populatePlates() {
       } else {
         newPlate.querySelector('.stars .tooltiptext').remove();
       }
+      newPlate.querySelector('.joinlink').href = `osump://${room['id']}`;
       newPlate.style.display = 'flex';
       displayStatus('nothing');
       roomsAdded++;
@@ -273,8 +279,13 @@ function populatePlates() {
     }
   });
   if (roomsAdded == 0) {
-    displayStatus('.norooms');
+    if (filtersOn) {
+      document.querySelector('.filtersinfo').innerHTML = `Srearching through '${getFiltersLenght()}' filters`
+      displayStatus('.filtersinfo');
+    }
+    else displayStatus('.norooms');
     console.log('No rooms found');
+
   }
 }
 function removePlates() {
@@ -312,3 +323,90 @@ function tooltipHandle() {
     });
   });
 }
+
+function toggleFilters() {
+  filtersOn = !filtersOn;
+  console.log(filtersOn ? 'flex':'ff');
+  document.querySelector('.bcreate').style.display = filtersOn ? 'flex' : 'none';
+  document.querySelector('.bnotif').style.display = filtersOn ? 'flex' : 'none';
+}
+function filterRooms(rooms) {
+  let roomsFound = [];
+  rooms.forEach(room => {
+    let roomFound = false;
+    filters.forEach(filter => {
+      if (roomFound) return;
+      filter.hostis.split(' ').forEach(element => {
+        var fstring = element.split('/');
+        if (fstring[fstring.length - 1] == room['hostid'])
+          roomFound = true;
+      });
+      filter.hasuser.split(' ').forEach(element => {
+        var fstring = element.split('/');
+        room['recent_participants'].forEach(user => {
+          if (user['id'] == fstring[fstring.length - 1])
+            roomFound = true;
+        });
+      });
+      filter.namehas.split(' ').forEach(element => {
+        if (room['name'].includes(element))
+          roomsFound = true;
+      })
+    });
+    if (roomFound)
+      roomsFound.push(room);
+  });
+  return roomsFound;
+}
+ 
+function initFilters() {
+  filters = JSON.parse(localStorage.getItem('filters') || '[]');
+  if (!Array.isArray(filters)) filters = [];
+  filterText = JSON.parse(localStorage.getItem('filterText')) || getFilters();
+}
+function openNotif() {
+  document.querySelector('.exitb').style.display = 'inline';
+  document.querySelector('.notifpage').style.display = 'flex';
+  updateF();
+}
+function exitNotif() {
+  document.querySelector('.exitb').style.display = 'none';
+  document.querySelector('.notifpage').style.display = 'none';
+  getFilters();
+}
+
+
+function getFilters() {
+  let _f = {};
+  _f.namehas = document.querySelector('.namehas').value;
+  _f.hostis = document.querySelector('.hostis').value;
+  _f.hasuser = document.querySelector('.hasuser').value;
+  return _f;
+}
+
+function createNotif() {
+  filterText = getFilters();
+  console.log(filters);
+  filters.push(filterText);
+  updateF();
+}
+
+function deleteNotif() {
+  filters = [];
+  updateF();
+}
+function updateF() {
+  document.querySelector('.fcount').innerHTML = `You have \'${getFiltersLenght()}\'<br>active filters`;
+  localStorage.setItem('filters', JSON.stringify(filters));
+  localStorage.setItem('filterText', JSON.stringify(filterText));
+}
+function getFiltersLenght() {
+  var l = 0;
+  filters.forEach(e => {
+    l = l + e.namehas.split(' ').length + e.hasuser.split(' ').length + e.hostis.split(' ').length;
+  });
+  return l;
+}
+namef.addEventListener(`focus`, () => namef.select());
+hostf.addEventListener(`focus`, () => hostf.select());
+userf.addEventListener(`focus`, () => userf.select());

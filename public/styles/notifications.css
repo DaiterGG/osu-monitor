@@ -1,0 +1,99 @@
+@font-face {
+    font-family: 'TorusRegular';
+    src: url('../fonts/TorusRegular.734ed3ae.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.exitb {
+    display:none;
+    left: 0%;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background-color: rgba(0, 0, 0, 0.329);
+}
+
+.notifpage {
+    font-family: TorusRegular, sans-serif;
+    color: rgb(255, 255, 255);
+    padding: 30px;
+    position: fixed;
+    display: none;
+    width: 400px;
+    height: 500px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #302e38;
+    flex-direction: column;
+    border-radius: 10px;
+}
+
+.notifpage label {
+    text-align: left; 
+    margin-left: 5px;
+}
+
+.notifpage input {
+    padding: 6px;
+    font-size: 16px;
+    border: 0;
+    margin-bottom: 10px;
+    margin-top: 6px;
+    color: rgb(255, 255, 255);
+    font-family: TorusRegular, sans-serif;
+    border-radius: 6px;
+    background-color: #24222a;
+}
+
+textarea:focus,
+input:focus {
+    outline: none;
+}
+
+.notifpage h2 {
+    margin-top: 0px;
+
+}
+
+.fbuttons {
+    display: flex;
+    align-self: flex-end;
+    margin-top: auto;
+    flex-direction: row;
+}
+
+.fbuttons button {
+    display: flex;
+    border-radius: 1000px;
+    border: 0;
+    color: white;
+    padding: 5px 20px;
+    font-family: TorusRegular, sans-serif;
+
+}
+.fbuttons div {
+    align-items: center; 
+    display: flex;
+    text-align: center;
+    margin-right: 10px;
+    color: white;
+    font-family: TorusRegular, sans-serif;
+    font-size: 12px;
+}
+
+.createb {
+    background-color: #5933cc;
+    margin-right: 10px;
+}
+
+.removeb {
+    background-color: #cc333b;
+}
+
+.fcount {
+    display: inline;
+}
+

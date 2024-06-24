@@ -45,9 +45,9 @@ https.createServer(options, app).listen(PORT, async () => {
   }
 });
 
-function writeData(varData , keyName) {
+function writeData(varData, keyName) {
   jsonData[keyName] = varData.toString();
-  fs.writeFileSync('links.json',  JSON.stringify(jsonData), 'utf8', (err) => {
+  fs.writeFileSync('links.json', JSON.stringify(jsonData), 'utf8', (err) => {
     console.log('Error writing to a file:', err);
   });
 }
@@ -239,6 +239,7 @@ async function updateRooms() {
       });
       roomsAll = await response.json();
       filterRooms();
+
       console.log('Rooms data fetched successfully');
     } catch (error) {
       console.error('Error fetching rooms:', error.message);
@@ -303,9 +304,42 @@ function initCalls() {
 
 
 function filterRooms() {
+  
   rooms = [];
   roomsAll.forEach((room) => {
-    if (!room['has_password'])
-      rooms.push(room);
+    if (room['has_password']) return;
+    let _r = {};
+    _r['playlist'] = [];
+    room['playlist'].forEach((pl) => {
+      let _p = {};
+      _p['difficulty'] = pl['difficulty'];
+      _p['ruleset_id'] = pl['ruleset_id'];
+      _p['beatmapdif'] = pl['beatmap']['difficulty_rating'];
+      _p['expired'] = pl['expired'];
+      _p['beatmapsetname'] = pl['beatmap']['beatmapset']['title']; 
+      _p['beatmapversion'] = pl['beatmap']['version']; 
+      _p['beatmapid'] = pl['beatmap']['beatmapset_id'];
+      _p['beatmapmode'] = pl['beatmap']['mode'];
+      _p['id'] = pl['id'];
+      _p['slimcover'] = pl['beatmap']['beatmapset']['covers']['slimcover'];
+      _r['playlist'].push(_p);
+    })
+    _r['recent_participants'] = [];
+    room['recent_participants'].forEach((participant) => {
+      let _p = {};
+      _p['username'] = participant['username'];
+      _p['avatar_url'] = participant['avatar_url'];
+      _p['id'] = participant['id'];
+      _r['recent_participants'].push(_p);
+    })
+    _r['name'] = room['name'];
+    _r['id'] = room['id'];
+    _r['queue_mode'] = room['queue_mode'];
+    _r['hostusername'] = room['host']['username'];
+    _r['hostavatar_url'] = room['host']['avatar_url'];
+    _r['hostid'] = room['host']['id'];
+    
+      rooms.push(_r);
   });
+  
 }

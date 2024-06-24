@@ -110,6 +110,7 @@ body {
   display: flex;
   margin-top: -22px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .legal {
@@ -121,8 +122,9 @@ body {
 .filters {
   display: flex;
   flex-direction: row;
-  height: 30px;
-  width: auto;
+  flex-wrap: wrap;
+  max-width: 500px;
+  row-gap: 10px;
 }
 
 .button-container {
@@ -140,7 +142,15 @@ body {
   padding-right: 7px;
   padding-bottom: 20px;
 }
-
+.bfilter button, .bcreate button, .bnotif button {
+  font-family: TorusRegular, sans-serif;
+  border-radius: 1000px !important;
+  padding-bottom: 20px;
+  text-wrap: nowrap;
+}
+.bcreate, .bnotif {
+  display: none;
+}
 .switch-button {
   --modesbg-color: #2a2228;
   font-family: Extra;
@@ -165,6 +175,8 @@ body {
   border-radius: 0 15px 15px 0;
 }
 
+
+
 .stdlogo::before {
   content: "\e800";
 }
@@ -181,10 +193,17 @@ body {
   content: "\e802";
 }
 
-.switch-button:hover {
+.switch-button.active:hover {
+  background-color: #da3dad;
+}.switch-button:hover {
   background-color: #da3dad;
 }
-
+.switch-button.active {
+ background-color: #3a2f37;
+}
+.bfilter.active {
+ background-color: #da3dad !important;
+}
 .switch-button:focus {
   outline: none;
 }
@@ -220,7 +239,9 @@ body {
 .stablewarning {
   display: none;
 }
-
+.filtersinfo {
+  display: none;
+}
 .plate {
   z-index: 0;
   background-color: #2a2228;
@@ -228,7 +249,7 @@ body {
   min-height: 87px;
   width: 100%;
   padding-left: 15px;
-  background-size:cover;
+  background-size: cover;
   justify-content: space-between;
   box-sizing: border-box;
   border-radius: 9px;
@@ -236,7 +257,7 @@ body {
 
 .platebg {
   z-index: 0;
-  background-image: linear-gradient(0.25turn, #2a2228,#2a2228ec,#2a22284b, #2a22284b);
+  background-image: linear-gradient(0.25turn, #2a2228, #2a2228ec, #2a22284b, #2a22284b);
   padding: 4px;
   padding-left: 18px;
   min-height: 87px;
@@ -250,7 +271,7 @@ body {
 
 
 #example-plate {
-  display: none;
+  display: flex;
 }
 
 .plateleft {
@@ -261,23 +282,25 @@ body {
   flex: 1;
 }
 
+.joinlink {
+  display: flex;
+  margin-bottom: 6px;
+  text-decoration: none;
+  margin-right: auto;
+}
 
-
-.accesstype {
+.join {
   background-color: #b3d944;
   color: #000;
   border-radius: 10px;
   width: 69px;
-  height: 12px;
-  font-size: 9px;
+  height: 13px;
+  font-size: 10px;
   font-family: TorusBold, sans-serif;
   margin-bottom: 6px;
-}
-
-.accesstype p {
+  border: 0;
   margin: 0;
-  height: inherit;
-  line-height: 12px;
+  line-height: 8px;
 }
 
 .plate h2 {
@@ -442,7 +465,7 @@ body {
   border-radius: 2px 10px 0 0;
   transform: skew(-40deg);
   border-style: solid;
-  border-width: 1.12em 0 0 1.12em; 
+  border-width: 1.12em 0 0 1.12em;
   border-color: var(--max-star-color);
 }
 
@@ -459,9 +482,10 @@ body {
   text-align: center;
   margin-top: 1px;
 }
+
 .onestar div {
   background-color: #000;
-  border-radius: 20px; 
+  border-radius: 20px;
 }
 
 .tags p {
@@ -509,6 +533,7 @@ body {
   display: flex;
   align-items: center;
 }
+
 .authorimg {
   margin-right: 5px;
   width: 30px;
@@ -517,16 +542,19 @@ body {
   background-size: contain;
   background-color: #a8f061;
 }
-.authorinfo{
+
+.authorinfo {
   display: flex;
   flex-wrap: nowrap;
-  
+
 }
-.authorname{
+
+.authorname {
   margin-left: 3px;
   margin-right: 7px;
-  color:#cb9bbb;
+  color: #cb9bbb;
 }
+
 .participants {
   width: auto;
   height: 50px;
@@ -555,6 +583,7 @@ body {
   align-items: center;
   /* Adjust minimum width */
 }
+
 .participantslist .icon {
   z-index: 1;
   margin-left: 5px;
@@ -564,6 +593,7 @@ body {
   background-size: contain;
   background-image: url('../img/icon.png');
 }
+
 .participantslist .count {
   font-family: TorusBold, sans-serif;
   margin-right: 7px;
