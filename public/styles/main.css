@@ -201,7 +201,7 @@ body {
 .switch-button.active {
  background-color: #3a2f37;
 }
-.bfilter.active {
+.bfilter .switch-button.active {
  background-color: #da3dad !important;
 }
 .switch-button:focus {

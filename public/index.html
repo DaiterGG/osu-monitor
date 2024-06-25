@@ -48,7 +48,7 @@
         <button class="switch-button" onclick="toggleFilters()">Filters</button>
       </div>
       <div class="button-container bcreate">
-        <button class="switch-button" onclick="openNotif()">Create Filters</button>
+        <button class="switch-button" onclick="openFilt()">Create Filters</button>
       </div>
       <div class="button-container bnotif">
         <button class="switch-button" onclick="notifRequest()">Browser notifications</button>
@@ -129,7 +129,7 @@
       </div>
     </div>
   </div>
-  <button class="exitb" onclick="exitNotif()"></button>
+  <button class="exitb" onclick="exitFilt()"></button>
   <div class="notifpage">
     <h2>Create you own filters</h2>
     <label for="namef">Name of the room has one of these words<br>(space between words)</label>
@@ -140,8 +140,8 @@
     <input class="hasuser" type="text" id="userf" name="userf" value="" />
     <div class="fbuttons">
       <div class="fcount">You have '0'<br>active filters`</div>
-      <button class="createb" onclick="createNotif()">Create<br>filters</button>
-      <button class="removeb" onclick="deleteNotif()">Delete all<br>filters</button>
+      <button class="createb" onclick="createFilt()">Create<br>filters</button>
+      <button class="removeb" onclick="deleteFilt()">Delete all<br>filters</button>
     </div>
   </div>
   <script src="scripts/main.js"></script>

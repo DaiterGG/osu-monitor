@@ -4,8 +4,7 @@ let isLazer;
 let intervalID;
 let filtersOn = false;
 
-let filters = [];
-let filterText = {};
+let filters = {};
 
 document.addEventListener('DOMContentLoaded', () => {
   isLazer = true;
@@ -68,9 +67,10 @@ function updateButtons() {
   });
   const gbuttons = document.querySelector('.bgame').querySelectorAll('button');
   _toggleB(gbuttons[0], isLazer);
-  _toggleB(gbuttons[1], !isLazer)
+  _toggleB(gbuttons[1], !isLazer);
   const fbutton = document.querySelector('.bfilter').querySelector('button');
   _toggleB(fbutton, filtersOn);
+
 }
 
 function _toggleB(button, on) {
@@ -326,7 +326,7 @@ function tooltipHandle() {
 
 function toggleFilters() {
   filtersOn = !filtersOn;
-  console.log(filtersOn ? 'flex':'ff');
+  console.log(filtersOn ? 'flex' : 'ff');
   document.querySelector('.bcreate').style.display = filtersOn ? 'flex' : 'none';
   document.querySelector('.bnotif').style.display = filtersOn ? 'flex' : 'none';
 }
@@ -334,78 +334,74 @@ function filterRooms(rooms) {
   let roomsFound = [];
   rooms.forEach(room => {
     let roomFound = false;
-    filters.forEach(filter => {
-      if (roomFound) return;
-      filter.hostis.split(' ').forEach(element => {
-        var fstring = element.split('/');
-        if (fstring[fstring.length - 1] == room['hostid'])
+    filters.hostis.forEach(element => {
+      var fstring = element.split('/');
+      if (fstring[fstring.length - 1] == room['hostid'])
+        roomFound = true;
+    });
+    filters.hasuser.forEach(element => {
+      var fstring = element.split('/');
+      room['recent_participants'].forEach(user => {
+        if (user['id'] == fstring[fstring.length - 1])
           roomFound = true;
       });
-      filter.hasuser.split(' ').forEach(element => {
-        var fstring = element.split('/');
-        room['recent_participants'].forEach(user => {
-          if (user['id'] == fstring[fstring.length - 1])
-            roomFound = true;
-        });
-      });
-      filter.namehas.split(' ').forEach(element => {
-        if (room['name'].includes(element))
-          roomsFound = true;
-      })
     });
+    filters.namehas.forEach(element => {
+      if (room['name'].includes(element))
+        roomsFound = true;
+    })
     if (roomFound)
       roomsFound.push(room);
   });
   return roomsFound;
 }
- 
+
 function initFilters() {
-  filters = JSON.parse(localStorage.getItem('filters') || '[]');
-  if (!Array.isArray(filters)) filters = [];
-  filterText = JSON.parse(localStorage.getItem('filterText')) || getFilters();
+  filters = JSON.parse(localStorage.getItem('filters') ||
+    '{"hasuser": [],"hostis":[],"namehas": []}');
 }
-function openNotif() {
+function openFilt() {
   document.querySelector('.exitb').style.display = 'inline';
   document.querySelector('.notifpage').style.display = 'flex';
   updateF();
 }
-function exitNotif() {
+function exitFilt() {
   document.querySelector('.exitb').style.display = 'none';
   document.querySelector('.notifpage').style.display = 'none';
-  getFilters();
 }
 
-
-function getFilters() {
-  let _f = {};
-  _f.namehas = document.querySelector('.namehas').value;
-  _f.hostis = document.querySelector('.hostis').value;
-  _f.hasuser = document.querySelector('.hasuser').value;
-  return _f;
+function getFiltersLenght() {
+  var l = 0;
+  l = l + filters.namehas.length + filters.hasuser.length + filters.hostis.length;
+  return l;
 }
 
-function createNotif() {
-  filterText = getFilters();
-  console.log(filters);
-  filters.push(filterText);
+function createFilt() {
+  ifNotIncludes('namehas');
+  ifNotIncludes('hasuser');
+  ifNotIncludes('hostis');
+  
   updateF();
 }
 
-function deleteNotif() {
+function ifNotIncludes(key){
+  let f = document.querySelector('.' + key).value;
+  filters[key].forEach(f => {
+    if (!f.includes(f))
+      f += f;
+  });
+  filters[key] = f.split(' ');
+} 
+  
+
+
+function deleteFilt() {
   filters = [];
   updateF();
 }
 function updateF() {
   document.querySelector('.fcount').innerHTML = `You have \'${getFiltersLenght()}\'<br>active filters`;
   localStorage.setItem('filters', JSON.stringify(filters));
-  localStorage.setItem('filterText', JSON.stringify(filterText));
-}
-function getFiltersLenght() {
-  var l = 0;
-  filters.forEach(e => {
-    l = l + e.namehas.split(' ').length + e.hasuser.split(' ').length + e.hostis.split(' ').length;
-  });
-  return l;
 }
 namef.addEventListener(`focus`, () => namef.select());
 hostf.addEventListener(`focus`, () => hostf.select());
