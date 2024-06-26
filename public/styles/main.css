@@ -123,7 +123,7 @@ body {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  max-width: 500px;
+  max-width: 570px;
   row-gap: 10px;
 }
 
@@ -151,11 +151,43 @@ body {
 .bcreate, .bnotif {
   display: none;
 }
+.starf {
+  background-color: #2a2228;
+  height: 30px;
+  flex-wrap: nowrap;
+  display: flex;
+  margin-right:10px;
+  border: none;
+  border-radius: 5px;
+  padding-bottom: 2px;
+  height: 28px;
+}
+.minf, .maxf {
+  text-align: center;
+  font-size: 20px;
+  font-family: TorusRegular, sans-serif;
+  color: white;
+  margin: 0 4px;
+  width: 40px;
+  border: 0;
+  background-color: transparent;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance:textfield; /* Firefox */
+    appearance: textfield;
+}
 .switch-button {
   --modesbg-color: #2a2228;
   font-family: Extra;
   height: 30px;
-  margin-right: -10px;
+  margin-right: -10px;  
   font-size: 20px;
   padding-inline: 10px;
   cursor: pointer;
@@ -199,11 +231,11 @@ body {
   background-color: #da3dad;
 }
 .switch-button.active {
- background-color: #3a2f37;
+ background-color: #3d343b;
 }
-.bfilter .switch-button.active {
- background-color: #da3dad !important;
-}
+/* .bmode .switch-button.active {
+  color: #02f6a5;
+} */
 .switch-button:focus {
   outline: none;
 }
@@ -495,9 +527,7 @@ body {
 .plateright {
   margin-right: 10px;
   width: auto;
-  /* Adjust as needed */
   height: 50px;
-  /* Adjust as needed */
   position: relative;
   display: inline-block;
   align-self: center;
@@ -524,7 +554,6 @@ body {
 @media (max-width: 550px) {
   .plateright {
     display: none;
-    /* Hide plate-right when plate is smaller than twice its width */
   }
 }
 
@@ -553,6 +582,7 @@ body {
   margin-left: 3px;
   margin-right: 7px;
   color: #cb9bbb;
+  text-decoration: none;
 }
 
 .participants {

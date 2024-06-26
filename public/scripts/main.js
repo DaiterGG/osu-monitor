@@ -70,7 +70,6 @@ function updateButtons() {
   _toggleB(gbuttons[1], !isLazer);
   const fbutton = document.querySelector('.bfilter').querySelector('button');
   _toggleB(fbutton, filtersOn);
-
 }
 
 function _toggleB(button, on) {
@@ -122,7 +121,7 @@ function populatePlates(rooms) {
   const examplePlate = document.getElementById('example-plate');
   examplePlate.style.display = 'none';
   removePlates();
-
+  console.log(rooms);
   let roomsAdded = 0;
   rooms.forEach(room => {
     let mindif = 999;
@@ -161,6 +160,7 @@ function populatePlates(rooms) {
       allDif.push(sr);
     }
 
+    if(mindif > Number(maxf.value) || maxdif < Number(minf.value)) return;
     //if queue is empty add first expired beatmap 
     let roomMode = -1;
     if (modes[0] + modes[1] + modes[2] + modes[3] > 1) {
@@ -173,110 +173,110 @@ function populatePlates(rooms) {
         if (mode == 1) roomMode = index;
       });
     }
-
-    if (filterMode == roomMode || roomMode == 'mixed') {
-      //create a web plate
-      const newPlate = examplePlate.cloneNode(true);
-      newPlate.id = 'room';
-      const plist = newPlate.querySelector('.participantslist');
-      let players = room['recent_participants'];
-      players.forEach(pl => {
-        if (room['hostid'] != pl['id']) {
-          const img = newPlate.querySelector('.authorimg').cloneNode();
-          img.style.backgroundImage = `url('${pl['avatar_url']}')`;
-          plist.appendChild(img);
-        }
-      });
-      newPlate.querySelector('.participantslist .count').textContent = '+ ' + (players.length - 1);
-      newPlate.querySelector('.author .authorimg').style.backgroundImage = `url('${room['hostavatar_url']}')`;
-      newPlate.querySelector('.authorname').textContent = room['hostusername'];
-      let roomName = room['name'];
-      const roomTooltip = newPlate.querySelector('.roomname .tooltiptext');
-
-      if (roomName.length > 50) {
-        roomTooltip.textContent = roomName;
-        roomName = roomName.substring(0, 50) + '...';
-      } else {
-        roomTooltip.remove();
+    if (filterMode != roomMode && roomMode != 'mixed') return;
+    //create a web plate
+    const newPlate = examplePlate.cloneNode(true);
+    newPlate.id = 'room';
+    const plist = newPlate.querySelector('.participantslist');
+    let players = room['recent_participants'];
+    players.forEach(pl => {
+      if (room['hostid'] != pl['id']) {
+        const img = newPlate.querySelector('.authorimg').cloneNode();
+        img.style.backgroundImage = `url('${pl['avatar_url']}')`;
+        plist.appendChild(img);
       }
-      newPlate.querySelector('.roomname h2').textContent = roomName;
+    });
+    newPlate.querySelector('.participantslist .count').textContent = '+ ' + (players.length - 1);
+    newPlate.querySelector('.author .authorimg').style.backgroundImage = `url('${room['hostavatar_url']}')`;
+    newPlate.querySelector('.authorname').textContent = room['hostusername'];
+    newPlate.querySelector('.authorname').href = 'https://osu.ppy.sh/users/' + room['hostid'];
+    let roomName = room['name'];
+    const roomTooltip = newPlate.querySelector('.roomname .tooltiptext');
 
-      queue = beatmapQueue.length;
-
-      //"1 beatmap" is default text
-      if (queue != 1) newPlate.querySelector('.btmcount .count').textContent = queue + ' beatmaps';
-      //if no maps in queue, add last expired beatmap
-      if (queue == 0) beatmapQueue.push(playlist[playlist.length - 1]);
-      if (beatmapQueue.length > 1) {
-        let str = '';
-        beatmapQueue.forEach((map) => {
-          str += map['beatmapsetname'] + ' // ' + map['beatmapversion'] + '<br>';
-        });
-        newPlate.querySelector('.btmcount .tooltiptext').innerHTML = str;
-      }
-      else {
-        newPlate.querySelector('.btmcount .tooltiptext').remove();
-      }
-      const currbeatmap = beatmapQueue[beatmapQueue.length - 1];
-      const currentLink = 'https://osu.ppy.sh/beatmapsets/' + currbeatmap['beatmapid'] + '#' + currbeatmap['beatmapmode'] + '/' + currbeatmap['id'];
-      let currentMap = currbeatmap['beatmapsetname'] + ' // ' + currbeatmap['beatmapversion'];
-      newPlate.style.backgroundImage = `url(${currbeatmap['slimcover']})`;
-      if (currentMap.length > 50) {
-        newPlate.querySelector('.map .tooltiptext').textContent = currentMap;
-        currentMap = currentMap.substring(0, 50) + '...';
-      } else {
-        newPlate.querySelector('.map .tooltiptext').remove();
-      }
-      newPlate.querySelector('.mapcontent').textContent = currentMap;
-      newPlate.querySelector('.mapcontent').href = currentLink;
-      let queueMode = room['queue_mode'];
-      if (queueMode == 'all_players') queueMode = 'All players';
-      if (queueMode == 'all_players_round_robin') queueMode = 'All players (round robin)';
-      if (queueMode == 'host_only') queueMode = 'Host only';
-
-      newPlate.querySelector('.selectmode').textContent = queueMode;
-
-      const _min = newPlate.querySelector('.min');
-      const _max = newPlate.querySelector('.max');
-      if (allDif.length == 1) {
-        const _one = newPlate.querySelector('.onestar');
-        _one.style.visibility = 'visible';
-        if (allDif[0] < 100) allDif[0] = allDif[0].toFixed(2).substring(0, 4);
-        else allDif[0] = allDif[0].toFixed(0).substring(0, 3);
-        _one.querySelector('div').textContent = '★ ' + allDif[0];
-        if (allDif[0] >= 6.5) _one.querySelector('div').style.color = '#ffd966';
-        _one.querySelector('div').style.backgroundColor = difficultyColourSpectrum(allDif[0]);
-        _min.style.visibility = 'hidden';
-        _max.style.visibility = 'hidden';
-      } else {
-        if (mindif < 100) mindif = mindif.toFixed(2).substring(0, 4);
-        else mindif = mindif.toFixed(0).substring(0, 3);
-        if (maxdif < 100) maxdif = maxdif.toFixed(2).substring(0, 4);
-        else maxdif = maxdif.toFixed(0).substring(0, 3);
-        _min.querySelector('div').textContent = '★ ' + mindif;
-        _max.querySelector('div').textContent = '★ ' + maxdif;
-
-        if (mindif >= 6.5) _min.style.color = '#ffd966';
-        if (maxdif >= 6.5) _max.style.color = '#ffd966';
-        _min.style.backgroundColor = difficultyColourSpectrum(mindif);
-        _max.style.setProperty('--max-star-color', difficultyColourSpectrum(maxdif));
-
-      }
-      if (allDif.length > 2) {
-        let allDifstr = '';
-        allDif.forEach((element) => {
-          allDifstr = allDifstr + element + ' ';
-        });
-        newPlate.querySelector('.stars .tooltiptext').textContent = allDifstr;
-      } else {
-        newPlate.querySelector('.stars .tooltiptext').remove();
-      }
-      newPlate.querySelector('.joinlink').href = `osump://${room['id']}`;
-      newPlate.style.display = 'flex';
-      displayStatus('nothing');
-      roomsAdded++;
-      container.appendChild(newPlate);
+    if (roomName.length > 50) {
+      roomTooltip.textContent = roomName;
+      roomName = roomName.substring(0, 50) + '...';
+    } else {
+      roomTooltip.remove();
     }
+    newPlate.querySelector('.roomname h2').textContent = roomName;
+
+    queue = beatmapQueue.length;
+
+    //"1 beatmap" is default text
+    if (queue != 1) newPlate.querySelector('.btmcount .count').textContent = queue + ' beatmaps';
+    //if no maps in queue, add last expired beatmap
+    if (queue == 0) beatmapQueue.push(playlist[playlist.length - 1]);
+    if (beatmapQueue.length > 1) {
+      let str = '';
+      beatmapQueue.forEach((map) => {
+        str += map['beatmapsetname'] + ' // ' + map['beatmapversion'] + '<br>';
+      });
+      newPlate.querySelector('.btmcount .tooltiptext').innerHTML = str;
+    }
+    else {
+      newPlate.querySelector('.btmcount .tooltiptext').remove();
+    }
+    const currbeatmap = beatmapQueue[beatmapQueue.length - 1];
+    const currentLink = 'https://osu.ppy.sh/beatmapsets/' + currbeatmap['beatmapid'] + '#' + currbeatmap['beatmapmode'] + '/' + currbeatmap['id'];
+    let currentMap = currbeatmap['beatmapsetname'] + ' // ' + currbeatmap['beatmapversion'];
+    newPlate.style.backgroundImage = `url(${currbeatmap['slimcover']})`;
+    if (currentMap.length > 50) {
+      newPlate.querySelector('.map .tooltiptext').textContent = currentMap;
+      currentMap = currentMap.substring(0, 50) + '...';
+    } else {
+      newPlate.querySelector('.map .tooltiptext').remove();
+    }
+    newPlate.querySelector('.mapcontent').textContent = currentMap;
+    newPlate.querySelector('.mapcontent').href = currentLink;
+    let queueMode = room['queue_mode'];
+    if (queueMode == 'all_players') queueMode = 'All players';
+    if (queueMode == 'all_players_round_robin') queueMode = 'All players (round robin)';
+    if (queueMode == 'host_only') queueMode = 'Host only';
+
+    newPlate.querySelector('.selectmode').textContent = queueMode;
+
+    const _min = newPlate.querySelector('.min');
+    const _max = newPlate.querySelector('.max');
+    if (allDif.length == 1) {
+      const _one = newPlate.querySelector('.onestar');
+      _one.style.visibility = 'visible';
+      if (allDif[0] < 100) allDif[0] = allDif[0].toFixed(2).substring(0, 4);
+      else allDif[0] = allDif[0].toFixed(0).substring(0, 3);
+      _one.querySelector('div').textContent = '★ ' + allDif[0];
+      if (allDif[0] >= 6.5) _one.querySelector('div').style.color = '#ffd966';
+      _one.querySelector('div').style.backgroundColor = difficultyColourSpectrum(allDif[0]);
+      _min.style.visibility = 'hidden';
+      _max.style.visibility = 'hidden';
+    } else {
+      if (mindif < 100) mindif = mindif.toFixed(2).substring(0, 4);
+      else mindif = mindif.toFixed(0).substring(0, 3);
+      if (maxdif < 100) maxdif = maxdif.toFixed(2).substring(0, 4);
+      else maxdif = maxdif.toFixed(0).substring(0, 3);
+      _min.querySelector('div').textContent = '★ ' + mindif;
+      _max.querySelector('div').textContent = '★ ' + maxdif;
+
+      if (mindif >= 6.5) _min.style.color = '#ffd966';
+      if (maxdif >= 6.5) _max.style.color = '#ffd966';
+      _min.style.backgroundColor = difficultyColourSpectrum(mindif);
+      _max.style.setProperty('--max-star-color', difficultyColourSpectrum(maxdif));
+
+    }
+    if (allDif.length > 2) {
+      let allDifstr = '';
+      allDif.forEach((element) => {
+        allDifstr = allDifstr + element + ' ';
+      });
+      newPlate.querySelector('.stars .tooltiptext').textContent = allDifstr;
+    } else {
+      newPlate.querySelector('.stars .tooltiptext').remove();
+    }
+    newPlate.querySelector('.joinlink').href = `osump://${room['id']}`;
+    newPlate.style.display = 'flex';
+    displayStatus('nothing');
+    roomsAdded++;
+    container.appendChild(newPlate);
+
   });
   if (roomsAdded == 0) {
     if (filtersOn) {
@@ -326,41 +326,63 @@ function tooltipHandle() {
 
 function toggleFilters() {
   filtersOn = !filtersOn;
-  console.log(filtersOn ? 'flex' : 'ff');
+  updateButtons();
+  removePlates();
+  displayStatus('.loading');
   document.querySelector('.bcreate').style.display = filtersOn ? 'flex' : 'none';
   document.querySelector('.bnotif').style.display = filtersOn ? 'flex' : 'none';
 }
 function filterRooms(rooms) {
   let roomsFound = [];
   rooms.forEach(room => {
-    let roomFound = false;
+    let isFound = false;
     filters.hostis.forEach(element => {
       var fstring = element.split('/');
       if (fstring[fstring.length - 1] == room['hostid'])
-        roomFound = true;
+        isFound = true;
     });
     filters.hasuser.forEach(element => {
       var fstring = element.split('/');
       room['recent_participants'].forEach(user => {
         if (user['id'] == fstring[fstring.length - 1])
-          roomFound = true;
+          isFound = true;
       });
     });
     filters.namehas.forEach(element => {
       if (room['name'].includes(element))
-        roomsFound = true;
+        isFound = true;
     })
-    if (roomFound)
+    if (isFound)
       roomsFound.push(room);
   });
   return roomsFound;
 }
 
 function initFilters() {
-  filters = JSON.parse(localStorage.getItem('filters') ||
-    '{"hasuser": [],"hostis":[],"namehas": []}');
+  _f = localStorage.getItem('filters')
+  if (_f == null) {
+    filters = { "hasuser": [], "hostis": [], "namehas": [] };
+  } else {
+    filters = JSON.parse(_f);
+    insertText('namehas');
+    insertText('hasuser');
+    insertText('hostis');
+
+  }
 }
+function insertText(key) {
+  let str = '';
+  filters[key].forEach((f, i) => {
+    if (i == filters[key].length - 1)
+      str += f;
+    else
+      str += f + ' ';
+  });
+  document.querySelector('.' + key).value = str;
+}
+
 function openFilt() {
+
   document.querySelector('.exitb').style.display = 'inline';
   document.querySelector('.notifpage').style.display = 'flex';
   updateF();
@@ -369,40 +391,63 @@ function exitFilt() {
   document.querySelector('.exitb').style.display = 'none';
   document.querySelector('.notifpage').style.display = 'none';
 }
-
 function getFiltersLenght() {
-  var l = 0;
-  l = l + filters.namehas.length + filters.hasuser.length + filters.hostis.length;
-  return l;
+  return filters.namehas.length + filters.hasuser.length + filters.hostis.length;
 }
-
 function createFilt() {
-  ifNotIncludes('namehas');
-  ifNotIncludes('hasuser');
-  ifNotIncludes('hostis');
-  
+  insertF('namehas');
+  insertF('hasuser');
+  insertF('hostis');
   updateF();
 }
-
-function ifNotIncludes(key){
+function insertF(key) {
   let f = document.querySelector('.' + key).value;
+  if (f == '') return;
   filters[key].forEach(f => {
+
     if (!f.includes(f))
       f += f;
   });
-  filters[key] = f.split(' ');
-} 
-  
-
-
+  filters[key] = f.split(' ').filter(_ => _ != '');
+}
 function deleteFilt() {
-  filters = [];
+  filters.hasuser = [];
+  filters.hostis = [];
+  filters.namehas = [];
+  console.log(filters.namehas);
   updateF();
 }
 function updateF() {
-  document.querySelector('.fcount').innerHTML = `You have \'${getFiltersLenght()}\'<br>active filters`;
+  document.querySelector('.fcount').innerHTML = `You have ${getFiltersLenght()}<br>active filter${getFiltersLenght() == 1 ? '' : 's'}`;
   localStorage.setItem('filters', JSON.stringify(filters));
 }
 namef.addEventListener(`focus`, () => namef.select());
 hostf.addEventListener(`focus`, () => hostf.select());
 userf.addEventListener(`focus`, () => userf.select());
+minf.addEventListener(`focus`, () => minf.select());
+maxf.addEventListener(`focus`, () => maxf.select());
+
+minf.value = '0.0';
+maxf.value = '10.0';
+minf.addEventListener('input', () => {
+  limitStars();
+  if (maxf.value.length > 4)
+    maxf.value = maxf.value.slice(0, 4);
+  if (Number(minf.value) > Number(maxf.value)) maxf.value = minf.value;
+});
+maxf.addEventListener('input', () => {
+  console.log(maxf.value);
+  if (maxf.value != '')
+    limitStars();
+  if (maxf.value.length > 4)
+    maxf.value = maxf.value.slice(0, 4);
+  if (Number(minf.value) > Number(maxf.value)) minf.value = maxf.value;
+  console.log(maxf.value);
+
+});
+function limitStars() {
+  if (Number(minf.value) < 0) minf.value = 0;
+  if (Number(maxf.value) < 0) maxf.value = 0;
+  if (Number(minf.value) > 20) minf.value = 20;
+  if (Number(maxf.value) > 20) maxf.value = 20;
+}

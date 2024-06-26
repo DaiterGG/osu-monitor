@@ -40,12 +40,16 @@
         <button class="switch-button ctblogo" onclick="changeMode(2)"></button>
         <button class="switch-button manlogo" onclick="changeMode(3)"></button>
       </div>
-      <div class="button-container bgame">
-        <button class="switch-button" onclick="changeGame(true)">Lazer</button>
-        <button class="switch-button" onclick="changeGame(false)">Stable</button>
+      <div class="starf">
+        <input type="number" class="minf" id="minf" maxlength="4"/>
+        <input type="number" class="maxf" id="maxf" maxlength="4"/>
       </div>
       <div class="button-container bfilter">
         <button class="switch-button" onclick="toggleFilters()">Filters</button>
+      </div>
+      <div class="button-container bgame">
+        <button class="switch-button" onclick="changeGame(true)">Lazer</button>
+        <button class="switch-button" onclick="changeGame(false)">Stable</button>
       </div>
       <div class="button-container bcreate">
         <button class="switch-button" onclick="openFilt()">Create Filters</button>
@@ -63,7 +67,7 @@
       </span>
       <h2 class="loading">Loading...</h2>
       <h1 class="stablewarning">Not available in current osu API :(</h1>
-      <h2 class="filtersinfo">Srearching through '0' filters</h2>
+      <h2 class="filtersinfo">Srearching through 0 filters</h2>
       <div class="plate" id="example-plate">
         <div class="platebg">
           <div class="plateleft">
@@ -131,6 +135,7 @@
   </div>
   <button class="exitb" onclick="exitFilt()"></button>
   <div class="notifpage">
+    <button class="closenotif" onclick="exitFilt()">x</button>
     <h2>Create you own filters</h2>
     <label for="namef">Name of the room has one of these words<br>(space between words)</label>
     <input class="namehas" type="text" id="namef" name="namef" value="chill noob" />
@@ -139,7 +144,7 @@
     <label for="userf">Url or id of the visitors</label>
     <input class="hasuser" type="text" id="userf" name="userf" value="" />
     <div class="fbuttons">
-      <div class="fcount">You have '0'<br>active filters`</div>
+      <div class="fcount">You have 0<br>active filters</div>
       <button class="createb" onclick="createFilt()">Create<br>filters</button>
       <button class="removeb" onclick="deleteFilt()">Delete all<br>filters</button>
     </div>
