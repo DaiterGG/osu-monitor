@@ -3,7 +3,7 @@ let filterMode = 0;
 let isLazer;
 let intervalID;
 let filtersOn = false;
-
+let notifOn = false;
 let filters = {};
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -70,6 +70,8 @@ function updateButtons() {
   _toggleB(gbuttons[1], !isLazer);
   const fbutton = document.querySelector('.bfilter').querySelector('button');
   _toggleB(fbutton, filtersOn);
+  const nbutton = document.querySelector('.bnotif').querySelector('button');
+  _toggleB(nbutton, notifOn);
 }
 
 function _toggleB(button, on) {
@@ -286,6 +288,8 @@ function populatePlates(rooms) {
     else displayStatus('.norooms');
     console.log('No rooms found');
 
+  } else if (filtersOn && notifOn) {
+    sendNotif();
   }
 }
 function removePlates() {
@@ -331,6 +335,7 @@ function toggleFilters() {
   displayStatus('.loading');
   document.querySelector('.bcreate').style.display = filtersOn ? 'flex' : 'none';
   document.querySelector('.bnotif').style.display = filtersOn ? 'flex' : 'none';
+  if (!filtersOn) notifOn = false;
 }
 function filterRooms(rooms) {
   let roomsFound = [];
@@ -364,9 +369,11 @@ function initFilters() {
     filters = { "hasuser": [], "hostis": [], "namehas": [] };
   } else {
     filters = JSON.parse(_f);
-    insertText('namehas');
-    insertText('hasuser');
-    insertText('hostis');
+    if (getFiltersLenght() != 0){
+      insertText('namehas');
+      insertText('hasuser');
+      insertText('hostis');
+    }
 
   }
 }
@@ -450,4 +457,28 @@ function limitStars() {
   if (Number(maxf.value) < 0) maxf.value = 0;
   if (Number(minf.value) > 20) minf.value = 20;
   if (Number(maxf.value) > 20) maxf.value = 20;
+}
+
+function notifToggle() {
+  if (Notification.permission != 'granted') {
+    Notification.requestPermission(() => {
+      if (Notification.permission == 'granted') notifToggle();
+    });
+    return;
+  }
+  notifOn = !notifOn;
+  updateButtons();
+}
+const notifLimit = 30000;
+let lastNotif = 0;
+function sendNotif(){
+  if (lastNotif + notifLimit > Date.now()) return;
+  const options = {
+    body: 'Match found!',
+  };
+  const nf = new Notification('Match Found!');
+  nf.onclick = () => {
+    window.focus();
+    nf.close();
+  }
 }
