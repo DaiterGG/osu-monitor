@@ -210,7 +210,7 @@ app.use('/', express.static(path.join(__dirname + '/public')));
 //Populate web page
 //
 let lastExecutionTime = 0;
-const limit = 50000000;
+const limit = 5000;
 async function updateRooms() {
   const currentTime = Date.now();
   if (currentTime - lastExecutionTime >= limit) {
