@@ -265,6 +265,8 @@ input[type=number] {
 }
 
 .loading {
+  display: flex;
+  flex-direction: column;
   display: none;
 }
 

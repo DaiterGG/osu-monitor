@@ -473,6 +473,7 @@ const notifLimit = 30000;
 let lastNotif = 0;
 function sendNotif(){
   if (lastNotif + notifLimit > Date.now()) return;
+  lastNotif = Date.now();
   const options = {
     body: 'Match found!',
   };
@@ -481,4 +482,5 @@ function sendNotif(){
     window.focus();
     nf.close();
   }
+
 }
